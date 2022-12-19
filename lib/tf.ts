@@ -1,15 +1,18 @@
 type ClassDefinition =
   | string
-  | string[]
   | Record<"true" | "false", string | undefined>
   | Record<string, boolean | undefined | null>
+  | undefined
+  | null
+  | 0
+  | false
   | ClassDefinition[];
 
-export const flatClass = (className: ClassDefinition): string => {
-  if (typeof className === "string") return className;
+export const flatClass = (classDefinition: ClassDefinition): string => {
+  if (typeof classDefinition === "string") return classDefinition;
 
-  if (Array.isArray(className)) {
-    return className.map(flatClass).join(" ");
+  if (Array.isArray(classDefinition)) {
+    return classDefinition.map(flatClass).filter(Boolean).join(" ");
   }
 
   return "";
