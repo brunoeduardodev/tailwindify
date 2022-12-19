@@ -7,4 +7,16 @@ describe("TailwindyFlat Tests", () => {
 
     expect(final).toEqual("some-class another-class");
   });
+
+  it("Should be able too deeply join classes", () => {
+    const final = tf("some-class", "another-class", [
+      "deep",
+      "example-class",
+      ["depth-2", "another-example"],
+    ]);
+
+    expect(final).toEqual(
+      "some-class another-class deep example-class depth-2 another-example"
+    );
+  });
 });
