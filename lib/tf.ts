@@ -1,6 +1,6 @@
 type Falsy = "" | 0 | false | null | undefined;
 
-type ClassDefinition =
+export type ClassDefinition =
   | string
   | Record<string, Falsy | true>
   | undefined
