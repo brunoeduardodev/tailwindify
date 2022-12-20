@@ -44,4 +44,10 @@ describe("TailwindyFlat Tests", () => {
     const final = tf(classDefinition);
     expect(final).toBe("is-even");
   });
+
+  it("Should accept record styles deeply nested", () => {
+    const final = tf("1", "2", ["3", "4", ["5", { "6": false, "7": true }]]);
+
+    expect(final).toBe("1 2 3 4 5 7");
+  });
 });
