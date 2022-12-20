@@ -24,4 +24,20 @@ describe("TailwindifyVariants test cases", () => {
 
     styles({ color: "red" });
   });
+
+  it("Should concat selected classes and base classes", () => {
+    const styles = tv("mt-1", [[["mt-2"], undefined, 0, "mt-3"]], {
+      variants: {
+        example: {
+          1: "mb-1",
+          2: "mb-2",
+        },
+      },
+      defaultVariants: {
+        example: 1,
+      },
+    });
+
+    expect(styles({ example: 2 })).toBe("mt-1 mt-2 mt-3 mb-2");
+  });
 });
