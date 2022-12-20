@@ -3,12 +3,10 @@
  */
 
 import type { ClassDefinition } from "./tf";
+import { flatClass } from "./tf";
 import { tf } from "./tf";
 
-type VariantsDefinition = Record<
-  string,
-  Record<string, ClassDefinition | { base: ClassDefinition }>
->;
+type VariantsDefinition = Record<string, Record<string, ClassDefinition>>;
 
 type VariantOptions<Variants extends VariantsDefinition> = {
   variants: Variants;
@@ -35,6 +33,30 @@ const parseOptions = <Variants extends VariantsDefinition>(
   return { variantsOptions, classes: options as ClassDefinition[] };
 };
 
+type VariantsSelection<Variants extends VariantsDefinition> = {
+  [key in keyof Variants]: keyof Variants[key];
+};
+
+type VariantsReturn<Variants extends VariantsDefinition> = (
+  selection: VariantsSelection<Variants>
+) => string;
+
+const getVariantsClassNames = <Variants extends VariantsDefinition>(
+  { variants, defaultVariants }: VariantOptions<Variants>,
+  selection: VariantsSelection<Variants>
+) => {
+  const variantKeys = Object.keys(variants);
+
+  const classes = variantKeys.flatMap((variant: keyof typeof variants) => {
+    const selectedVariant = selection[variant];
+
+    const selected = variants[variant][selectedVariant];
+    return flatClass(selected);
+  });
+
+  return flatClass(classes);
+};
+
 export const tv = <Variants extends VariantsDefinition>(
   ...options: Options<Variants>
 ) => {
@@ -44,5 +66,10 @@ export const tv = <Variants extends VariantsDefinition>(
 
   const { variantsOptions, classes } = parseOptions(...options);
 
-  return tf(classes);
+  return (selection: VariantsSelection<Variants>) => {
+    return flatClass([
+      ...classes,
+      getVariantsClassNames(variantsOptions, selection),
+    ]);
+  };
 };
