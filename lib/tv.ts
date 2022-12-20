@@ -4,23 +4,36 @@
 
 import type { ClassDefinition } from "./tf";
 
-type VariantOptions = {
-  test: true;
+type VariantsDefinition = Record<string, Record<string, { base: string }>>;
+
+type VariantOptions<Variants extends VariantsDefinition> = {
+  variants: Variants;
+
+  defaultVariants: {
+    [variant in keyof Variants]: keyof Variants[variant];
+  };
 };
 
-type Options = [...classes: ClassDefinition[], variantsOptions: VariantOptions];
+type Options<Variants extends VariantsDefinition> = [
+  ...classes: ClassDefinition[],
+  variantsOptions: VariantOptions<Variants>
+];
 
-const parseOptions = (...options: Options) => {
+const parseOptions = <Variants extends VariantsDefinition>(
+  ...options: Options<Variants>
+) => {
   if (!options.length) {
     throw new Error("Invalid options");
   }
 
-  const variantsOptions = options.pop() as VariantOptions;
+  const variantsOptions = options.pop() as VariantOptions<Variants>;
 
   return { variantsOptions, classes: options as ClassDefinition[] };
 };
 
-export const tv = (...options: Options) => {
+export const tv = <Variants extends VariantsDefinition>(
+  ...options: Options<Variants>
+) => {
   if (!options.length) {
     throw new Error("Invalid options");
   }
