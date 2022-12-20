@@ -1,6 +1,8 @@
+type Falsy = "" | 0 | false | null | undefined;
+
 type ClassDefinition =
   | string
-  | Record<string, string | 0 | boolean | null>
+  | Record<string, Falsy | true>
   | undefined
   | null
   | 0
