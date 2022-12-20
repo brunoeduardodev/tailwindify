@@ -4,7 +4,10 @@
 
 import type { ClassDefinition } from "./tf";
 
-type VariantsDefinition = Record<string, Record<string, { base: string }>>;
+type VariantsDefinition = Record<
+  string,
+  Record<string, ClassDefinition | { base: ClassDefinition }>
+>;
 
 type VariantOptions<Variants extends VariantsDefinition> = {
   variants: Variants;
@@ -42,3 +45,17 @@ export const tv = <Variants extends VariantsDefinition>(
 
   console.log({ variantsOptions, classes });
 };
+
+tv(["a"], {
+  variants: {
+    intent: {
+      primary: {
+        base: [""],
+      },
+      secondary: "mt-2",
+    },
+  },
+  defaultVariants: {
+    intent: "secondary",
+  },
+});
