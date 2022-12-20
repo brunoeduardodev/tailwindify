@@ -3,6 +3,7 @@
  */
 
 import type { ClassDefinition } from "./tf";
+import { tf } from "./tf";
 
 type VariantsDefinition = Record<
   string,
@@ -43,19 +44,5 @@ export const tv = <Variants extends VariantsDefinition>(
 
   const { variantsOptions, classes } = parseOptions(...options);
 
-  console.log({ variantsOptions, classes });
+  return tf(classes);
 };
-
-tv(["a"], {
-  variants: {
-    intent: {
-      primary: {
-        base: [""],
-      },
-      secondary: "mt-2",
-    },
-  },
-  defaultVariants: {
-    intent: "secondary",
-  },
-});
