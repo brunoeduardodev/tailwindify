@@ -1,7 +1,6 @@
 type ClassDefinition =
   | string
-  | Record<"true" | "false", string | undefined>
-  | Record<string, boolean | undefined | null>
+  | Record<string, string | 0 | boolean | null>
   | undefined
   | null
   | 0
@@ -15,7 +14,13 @@ export const flatClass = (classDefinition: ClassDefinition): string => {
     return classDefinition.map(flatClass).filter(Boolean).join(" ");
   }
 
-  return "";
+  if (!classDefinition) return "";
+  return flatClass(
+    Object.entries(classDefinition).map(([key, value]) => {
+      if (!value) return "";
+      return key;
+    }, [])
+  );
 };
 
 //** Tailwind Flat */
