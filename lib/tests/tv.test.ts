@@ -5,7 +5,6 @@ describe("TailwindifyVariants test cases", () => {
   it("Should concat class definition lists", () => {
     const styles = tv("mt-1", ["mt-2 mt-3"], {
       variants: {},
-      defaultVariants: {},
     });
 
     expect(styles({})).toBe("mt-1 mt-2 mt-3");
@@ -19,7 +18,6 @@ describe("TailwindifyVariants test cases", () => {
           blue: "text-blue-500",
         },
       },
-      defaultVariants: { color: "red" },
     });
 
     styles({ color: "red" });
@@ -33,11 +31,28 @@ describe("TailwindifyVariants test cases", () => {
           2: "mb-2",
         },
       },
-      defaultVariants: {
-        example: 1,
-      },
     });
 
     expect(styles({ example: 2 })).toBe("mt-1 mt-2 mt-3 mb-2");
+  });
+
+  it("Should use default variant if some variant is not given", () => {
+    const styles = tv({
+      variants: {
+        color: {
+          red: "text-red-500",
+          blue: "text-blue-500",
+        },
+        size: {
+          sm: "text-md",
+          md: "text-lg",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    });
+
+    expect(styles({ color: "red" })).toBe("text-red-500 text-lg");
   });
 });

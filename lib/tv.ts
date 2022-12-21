@@ -11,8 +11,8 @@ type VariantsDefinition = Record<string, Record<string, ClassDefinition>>;
 type VariantOptions<Variants extends VariantsDefinition> = {
   variants: Variants;
 
-  defaultVariants: {
-    [variant in keyof Variants]: keyof Variants[variant];
+  defaultVariants?: {
+    [variant in keyof Variants]?: keyof Variants[variant];
   };
 };
 
@@ -34,12 +34,8 @@ const parseOptions = <Variants extends VariantsDefinition>(
 };
 
 type VariantsSelection<Variants extends VariantsDefinition> = {
-  [key in keyof Variants]: keyof Variants[key];
+  [key in keyof Variants]?: keyof Variants[key];
 };
-
-type VariantsReturn<Variants extends VariantsDefinition> = (
-  selection: VariantsSelection<Variants>
-) => string;
 
 const getVariantsClassNames = <Variants extends VariantsDefinition>(
   { variants, defaultVariants }: VariantOptions<Variants>,
@@ -48,7 +44,8 @@ const getVariantsClassNames = <Variants extends VariantsDefinition>(
   const variantKeys = Object.keys(variants);
 
   const classes = variantKeys.flatMap((variant: keyof typeof variants) => {
-    const selectedVariant = selection[variant];
+    const selectedVariant = selection[variant] ?? defaultVariants?.[variant];
+    if (!selectedVariant) return [];
 
     const selected = variants[variant][selectedVariant];
     return flatClass(selected);
