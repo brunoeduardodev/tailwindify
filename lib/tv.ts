@@ -4,69 +4,75 @@
 
 import type { ClassDefinition } from "./tf";
 import { flatClass } from "./tf";
-import { tf } from "./tf";
 
 type VariantsDefinition = Record<string, Record<string, ClassDefinition>>;
 
-type VariantOptions<Variants extends VariantsDefinition> = {
-  variants: Variants;
-
-  defaultVariants?: {
-    [variant in keyof Variants]?: keyof Variants[variant];
-  };
+type VariantsSelection<Variants extends VariantsDefinition> = {
+  [key in keyof Variants]: keyof Variants[key];
 };
 
-type Options<Variants extends VariantsDefinition> = [
+type DefaultVariantsSelection<Variants extends VariantsDefinition> = Partial<
+  VariantsSelection<Variants>
+>;
+
+type VariantOptions<
+  Variants extends VariantsDefinition,
+  DefaultVariants extends DefaultVariantsSelection<Variants>
+> = {
+  variants: Variants;
+  defaultVariants?: DefaultVariants;
+};
+
+type Options<
+  Variants extends VariantsDefinition,
+  DefaultVariants extends DefaultVariantsSelection<Variants>
+> = [
   ...classes: ClassDefinition[],
-  variantsOptions: VariantOptions<Variants>
+  variantsOptions: VariantOptions<Variants, DefaultVariants>
 ];
 
-const parseOptions = <Variants extends VariantsDefinition>(
-  ...options: Options<Variants>
+export const tv = <
+  Variants extends VariantsDefinition,
+  DefaultVariants extends DefaultVariantsSelection<Variants>
+>(
+  ...options: Options<Variants, DefaultVariants>
 ) => {
   if (!options.length) {
     throw new Error("Invalid options");
   }
 
-  const variantsOptions = options.pop() as VariantOptions<Variants>;
+  const variantsOptions = options.pop() as VariantOptions<
+    Variants,
+    DefaultVariants
+  >;
+  const defaultClasses = [...options] as ClassDefinition[];
 
-  return { variantsOptions, classes: options as ClassDefinition[] };
-};
+  return (
+    selection: Omit<VariantsSelection<Variants>, keyof DefaultVariants> & {
+      [key in keyof DefaultVariants]?: key extends keyof Variants
+        ? keyof Variants[key]
+        : never;
+    }
+  ) => {
+    const { variants, defaultVariants } = variantsOptions;
+    const variantKeys = Object.keys(variants);
 
-type VariantsSelection<Variants extends VariantsDefinition> = {
-  [key in keyof Variants]?: keyof Variants[key];
-};
+    const variantClasses = variantKeys.flatMap(
+      (variant: keyof typeof variants) => {
+        const defaultVariant = defaultVariants?.[variant];
 
-const getVariantsClassNames = <Variants extends VariantsDefinition>(
-  { variants, defaultVariants }: VariantOptions<Variants>,
-  selection: VariantsSelection<Variants>
-) => {
-  const variantKeys = Object.keys(variants);
+        const selectedVariant = selection[variant] ?? defaultVariant;
+        if (!selectedVariant) return [];
 
-  const classes = variantKeys.flatMap((variant: keyof typeof variants) => {
-    const selectedVariant = selection[variant] ?? defaultVariants?.[variant];
-    if (!selectedVariant) return [];
+        const variantsOptions = variants[variant];
 
-    const selected = variants[variant][selectedVariant];
-    return flatClass(selected);
-  });
+        const selected =
+          variantsOptions[selectedVariant as keyof typeof variantsOptions];
 
-  return flatClass(classes);
-};
+        return flatClass(selected);
+      }
+    );
 
-export const tv = <Variants extends VariantsDefinition>(
-  ...options: Options<Variants>
-) => {
-  if (!options.length) {
-    throw new Error("Invalid options");
-  }
-
-  const { variantsOptions, classes } = parseOptions(...options);
-
-  return (selection: VariantsSelection<Variants>) => {
-    return flatClass([
-      ...classes,
-      getVariantsClassNames(variantsOptions, selection),
-    ]);
+    return flatClass([...defaultClasses, ...variantClasses]);
   };
 };
