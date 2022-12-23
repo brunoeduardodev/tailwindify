@@ -55,4 +55,34 @@ describe("TailwindifyVariants test cases", () => {
 
     expect(styles({ color: "red" })).toBe("text-red-500 text-lg");
   });
+
+  it("Should work having base classes & default variants & selected variant", () => {
+    const styles = tv(
+      "font-bold",
+      undefined,
+      "mb-2",
+      0,
+      null,
+      [[null, ["mt-3"]]],
+      {
+        variants: {
+          color: {
+            red: "text-red-500",
+            blur: "text-blue-500",
+          },
+          size: {
+            sm: "font-sm",
+            md: "font-md",
+          },
+        },
+        defaultVariants: {
+          color: "red",
+        },
+      }
+    );
+
+    expect(styles({ size: "sm" })).toBe(
+      "font-bold mb-2 mt-3 text-red-500 font-sm"
+    );
+  });
 });
