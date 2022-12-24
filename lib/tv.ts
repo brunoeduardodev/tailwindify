@@ -2,6 +2,12 @@
  * Tailwind Variants
  */
 
+type GetRequired<T> = {
+  [P in keyof T as T[P] extends Required<T>[P] ? P : never]: T[P];
+};
+
+type RequiredKeys<T> = keyof GetRequired<T>;
+
 import type { ClassDefinition } from "./tf";
 import { flatClass } from "./tf";
 
@@ -48,20 +54,23 @@ export const tv = <
   const defaultClasses = [...options] as ClassDefinition[];
 
   return (
-    selection: Omit<VariantsSelection<Variants>, keyof DefaultVariants> & {
-      [key in keyof DefaultVariants]?: key extends keyof Variants
-        ? keyof Variants[key]
-        : never;
-    }
+    selection: RequiredKeys<DefaultVariants> extends never
+      ? VariantsSelection<Variants>
+      : Omit<VariantsSelection<Variants>, keyof DefaultVariants> & {
+          [key in keyof DefaultVariants]?: key extends keyof Variants
+            ? keyof Variants[key]
+            : never;
+        }
   ) => {
     const { variants, defaultVariants } = variantsOptions;
+
     const variantKeys = Object.keys(variants);
 
     const variantClasses = variantKeys.flatMap(
       (variant: keyof typeof variants) => {
         const defaultVariant = defaultVariants?.[variant];
-
-        const selectedVariant = selection[variant] ?? defaultVariant;
+        const selectedVariant =
+          selection[variant as keyof typeof selection] ?? defaultVariant;
         if (!selectedVariant) return [];
 
         const variantsOptions = variants[variant];
