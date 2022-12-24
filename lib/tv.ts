@@ -29,7 +29,9 @@ type VariantOptions<
   defaultVariants?: DefaultVariants;
   compoundVariants?: Array<
     { classes: ClassDefinition } & {
-      [Key in keyof Variants]?: keyof Variants[Key];
+      [Key in keyof Variants]?:
+        | keyof Variants[Key]
+        | Array<keyof Variants[Key]>;
     }
   >;
 };
@@ -90,10 +92,24 @@ export const tv = <
     const compoundVariantsClasses = compoundVariants?.map((compound) => {
       const { classes, ...variants } = compound;
       const variantEntries = Object.entries(variants) as Array<
-        [key: keyof Variants, value: keyof Variants[keyof Variants]]
+        [
+          key: keyof Variants,
+          value:
+            | keyof Variants[keyof Variants]
+            | Array<keyof Variants[keyof Variants]>
+        ]
       >;
 
       const unmatched = variantEntries.reduce((unmatched, [key, value]) => {
+        if (Array.isArray(value)) {
+          if (!selection[key]) return true;
+
+          return (
+            unmatched ||
+            !value.includes(selection[key] as keyof Variants[keyof Variants])
+          );
+        }
+
         return unmatched || selection[key] !== value;
       }, false);
 

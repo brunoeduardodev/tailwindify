@@ -112,4 +112,40 @@ describe("TailwindifyVariants test cases", () => {
       "text-blue-500 font-md font-semibold"
     );
   });
+
+  it("Should support an list of variants to compound", () => {
+    const styles = tv({
+      variants: {
+        shadow: {
+          none: "",
+          sm: "shadow-sm",
+          md: "shadow-md",
+          lg: "shadow-lg",
+        },
+        rounded: {
+          none: "",
+          sm: "rounded",
+          md: "rounded-md",
+        },
+      },
+      compoundVariants: [
+        {
+          rounded: ["sm", "md"],
+          shadow: ["sm", "md", "lg"],
+          classes: "bg-red-500",
+        },
+        {
+          rounded: "none",
+          shadow: "none",
+          classes: "bg-blue-500",
+        },
+      ],
+    });
+
+    expect(styles({ shadow: "lg", rounded: "sm" })).toBe(
+      "shadow-lg rounded bg-red-500"
+    );
+
+    expect(styles({ shadow: "none", rounded: "none" })).toBe("bg-blue-500");
+  });
 });
