@@ -67,7 +67,7 @@ export const tv = <
             : never;
         }
   ) => {
-    const { variants, defaultVariants } = variantsOptions;
+    const { variants, defaultVariants, compoundVariants } = variantsOptions;
 
     const variantKeys = Object.keys(variants);
 
@@ -87,6 +87,23 @@ export const tv = <
       }
     );
 
-    return flatClass([...defaultClasses, ...variantClasses]);
+    const compoundVariantsClasses = compoundVariants?.map((compound) => {
+      const { classes, ...variants } = compound;
+      const variantEntries = Object.entries(variants) as Array<
+        [key: keyof Variants, value: keyof Variants[keyof Variants]]
+      >;
+
+      const unmatched = variantEntries.reduce((unmatched, [key, value]) => {
+        return unmatched || selection[key] !== value;
+      }, false);
+
+      return !unmatched && classes;
+    });
+
+    return flatClass([
+      ...defaultClasses,
+      ...variantClasses,
+      compoundVariantsClasses,
+    ]);
   };
 };

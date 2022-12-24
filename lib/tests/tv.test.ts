@@ -85,4 +85,31 @@ describe("TailwindifyVariants test cases", () => {
       "font-bold mb-2 mt-3 text-red-500 font-sm"
     );
   });
+
+  it("Should add compound variants classes", () => {
+    const styles = tv({
+      variants: {
+        color: {
+          red: "text-red-500",
+          blue: "text-blue-500",
+        },
+        size: {
+          sm: "font-sm",
+          md: "font-md",
+        },
+      },
+      compoundVariants: [
+        { color: "red", size: "sm", classes: "font-bold" },
+        { color: "blue", size: "md", classes: "font-semibold" },
+      ],
+    });
+
+    expect(styles({ color: "red", size: "sm" })).toBe(
+      "text-red-500 font-sm font-bold"
+    );
+
+    expect(styles({ color: "blue", size: "md" })).toBe(
+      "text-blue-500 font-md font-semibold"
+    );
+  });
 });
