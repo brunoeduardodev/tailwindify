@@ -68,7 +68,7 @@ describe("TailwindifyVariants test cases", () => {
         variants: {
           color: {
             red: "text-red-500",
-            blur: "text-blue-500",
+            blue: "text-blue-500",
           },
           size: {
             sm: "font-sm",
