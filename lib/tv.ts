@@ -27,6 +27,11 @@ type VariantOptions<
 > = {
   variants: Variants;
   defaultVariants?: DefaultVariants;
+  compoundVariants?: Array<
+    { classes: ClassDefinition } & {
+      [Key in keyof Variants]?: keyof Variants[Key];
+    }
+  >;
 };
 
 type Options<
