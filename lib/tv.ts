@@ -101,16 +101,18 @@ export const tv = <
       >;
 
       const unmatched = variantEntries.reduce((unmatched, [key, value]) => {
+        const selectedValue = selection[key] || defaultVariants?.[key];
+
         if (Array.isArray(value)) {
           if (!selection[key]) return true;
 
           return (
             unmatched ||
-            !value.includes(selection[key] as keyof Variants[keyof Variants])
+            !value.includes(selectedValue as keyof Variants[keyof Variants])
           );
         }
 
-        return unmatched || selection[key] !== value;
+        return unmatched || selectedValue !== value;
       }, false);
 
       return !unmatched && classes;

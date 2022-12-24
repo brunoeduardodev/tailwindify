@@ -148,4 +148,43 @@ describe("TailwindifyVariants test cases", () => {
 
     expect(styles({ shadow: "none", rounded: "none" })).toBe("bg-blue-500");
   });
+
+  it("Should set compounded variants by default variants", () => {
+    const styles = tv({
+      variants: {
+        shadow: {
+          none: "",
+          sm: "shadow-sm",
+          md: "shadow-md",
+          lg: "shadow-lg",
+        },
+        rounded: {
+          none: "",
+          sm: "rounded",
+          md: "rounded-md",
+        },
+      },
+      compoundVariants: [
+        {
+          rounded: ["sm", "md"],
+          shadow: ["sm", "md", "lg"],
+          classes: "bg-red-500",
+        },
+        {
+          rounded: "none",
+          shadow: "none",
+          classes: "bg-blue-500",
+        },
+      ],
+      defaultVariants: {
+        rounded: "none",
+        shadow: "none",
+      },
+    });
+
+    expect(styles({})).toBe("bg-blue-500");
+    expect(styles({ rounded: "md", shadow: "md" })).toBe(
+      "shadow-md rounded-md bg-red-500"
+    );
+  });
 });
