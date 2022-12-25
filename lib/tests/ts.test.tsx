@@ -89,21 +89,32 @@ describe("TailwindifyStyled", () => {
     expect(element?.tagName.toLowerCase()).toBe("div");
   });
 
+  const flat = tf;
+  const styled = ts;
+
   it("Should require base props", () => {
     const id = "test-999";
 
-    const MyComponent: FC<{
+    /** SomeFile.tsx */
+    type MyProps = {
       id: string;
       className?: string;
       color: "transparent" | "solid";
-      size?: "BIG" | "NORMAL";
-    }> = ({ className, color, size = "NORMAL", id }) => {
+      size?: "big" | "normal";
+    };
+
+    const MyComponent = ({
+      className,
+      color,
+      size = "normal",
+      id,
+    }: MyProps) => {
       return (
         <div
           id={id}
-          className={tf(className, color === "transparent" && "opacity-50", {
-            "font-bold": size === "BIG",
-            "font-semibold": size === "NORMAL",
+          className={flat(className, color === "transparent" && "opacity-50", {
+            "font-bold": size === "big",
+            "font-semibold": size === "normal",
           })}
         >
           {color}
@@ -111,7 +122,8 @@ describe("TailwindifyStyled", () => {
       );
     };
 
-    const MyStyledComponent = ts(MyComponent, "mb-2", {
+    /** SomeOtherFile.styles.ts */
+    const MyStyledComponent = styled(MyComponent, "mb-2", {
       variants: {
         size: {
           sm: "font-sm p-1",
@@ -128,9 +140,10 @@ describe("TailwindifyStyled", () => {
       },
     });
 
+    /** The Usage */
     render(
       <MyStyledComponent
-        id="test-999"
+        id={id}
         color="blue"
         __base={{ color: "transparent" }}
       />
