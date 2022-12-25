@@ -4,7 +4,7 @@ import { ts } from "../ts";
 import { render } from "@testing-library/react";
 
 describe("TailwindifyStyled", () => {
-  it("Should be able to create an React component", () => {
+  it("Should be able to create a React component", () => {
     const id = "some-id";
 
     const MyText = ts("p", "mt-2", {
