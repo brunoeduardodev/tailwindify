@@ -1,5 +1,5 @@
 import React from "react";
-import type { ComponentProps, ElementRef } from "react";
+import type { ComponentProps, ElementRef, JSXElementConstructor } from "react";
 import { forwardRef } from "react";
 import { tv } from "./tv";
 import type {
@@ -11,15 +11,15 @@ import type {
   VariantsSelection,
 } from "./types";
 
-type ValidComponent =
-  | keyof JSX.IntrinsicElements
-  | React.JSXElementConstructor<any>;
+type ValidComponent = keyof JSX.IntrinsicElements | JSXElementConstructor<any>;
 
-const separateProps = <V extends VariantsDefinition>(
-  allProps: object,
+const separateProps = <P extends object, V extends VariantsDefinition>(
+  allProps: P,
   variants: V
 ) => {
-  const props: Record<string, any> = {};
+  allProps;
+
+  const props: Partial<P> = {};
   const variantsProps: {
     [key in keyof V]?: keyof V[key];
   } = {};
@@ -30,10 +30,10 @@ const separateProps = <V extends VariantsDefinition>(
       return;
     }
 
-    props[key] = value;
+    props[key as keyof P] = value;
   });
 
-  return { props, variants: variantsProps };
+  return { props: props as P, variants: variantsProps };
 };
 
 /** TailwindStyle */
