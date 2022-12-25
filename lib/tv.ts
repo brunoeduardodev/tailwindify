@@ -11,17 +11,19 @@ type RequiredKeys<T> = keyof GetRequired<T>;
 import type { ClassDefinition } from "./tf";
 import { flatClass } from "./tf";
 
-type VariantsDefinition = Record<string, Record<string, ClassDefinition>>;
+export type VariantsDefinition = Record<
+  string,
+  Record<string, ClassDefinition>
+>;
 
-type VariantsSelection<Variants extends VariantsDefinition> = {
+export type VariantsSelection<Variants extends VariantsDefinition> = {
   [key in keyof Variants]: keyof Variants[key];
 };
 
-type DefaultVariantsSelection<Variants extends VariantsDefinition> = Partial<
-  VariantsSelection<Variants>
->;
+export type DefaultVariantsSelection<Variants extends VariantsDefinition> =
+  Partial<VariantsSelection<Variants>>;
 
-type VariantOptions<
+export type VariantOptions<
   Variants extends VariantsDefinition,
   DefaultVariants extends DefaultVariantsSelection<Variants>
 > = {
@@ -36,7 +38,7 @@ type VariantOptions<
   >;
 };
 
-type Options<
+export type Options<
   Variants extends VariantsDefinition,
   DefaultVariants extends DefaultVariantsSelection<Variants>
 > = [
