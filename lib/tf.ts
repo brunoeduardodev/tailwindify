@@ -1,13 +1,4 @@
-type Falsy = "" | 0 | false | null | undefined;
-
-export type ClassDefinition =
-  | string
-  | Record<string, Falsy | true>
-  | undefined
-  | null
-  | 0
-  | false
-  | ClassDefinition[];
+import type { ClassDefinition } from "./types";
 
 export const flatClass = (classDefinition: ClassDefinition): string => {
   if (typeof classDefinition === "string") return classDefinition;

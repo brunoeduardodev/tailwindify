@@ -1,16 +1,15 @@
 import React from "react";
 import type { ComponentProps, ElementRef } from "react";
 import { forwardRef } from "react";
-import type { ClassDefinition } from "./tf";
-import { tf } from "./tf";
+import { tv } from "./tv";
 import type {
-  DefaultVariantsSelection,
+  BaseDefaultVariantsSelection,
+  ClassDefinition,
   Options,
   VariantOptions,
   VariantsDefinition,
   VariantsSelection,
-} from "./tv";
-import { tv } from "./tv";
+} from "./types";
 
 type GetRequired<T> = {
   [P in keyof T as T[P] extends Required<T>[P] ? P : never]: T[P];
@@ -22,18 +21,18 @@ type ValidComponent =
   | keyof JSX.IntrinsicElements
   | React.JSXElementConstructor<any>;
 
-const separateProps = <Variants extends VariantsDefinition>(
+const separateProps = <V extends VariantsDefinition>(
   allProps: object,
-  variants: Variants
+  variants: V
 ) => {
   const props: Record<string, any> = {};
   const variantsProps: {
-    [key in keyof Variants]?: keyof Variants[key];
+    [key in keyof V]?: keyof V[key];
   } = {};
 
   Object.entries(allProps).forEach(([key, value]) => {
     if (key in variants) {
-      variantsProps[key as keyof Variants] = value;
+      variantsProps[key as keyof V] = value;
       return;
     }
 
@@ -45,30 +44,19 @@ const separateProps = <Variants extends VariantsDefinition>(
 
 /** TailwindStyle */
 export const ts = <
-  ComponentType extends ValidComponent,
-  Variants extends VariantsDefinition,
-  DefaultVariants extends DefaultVariantsSelection<Variants>
+  C extends ValidComponent,
+  V extends VariantsDefinition,
+  DV extends BaseDefaultVariantsSelection<V>
 >(
-  Component: ComponentType,
-  ...options: Options<Variants, DefaultVariants>
+  Component: C,
+  ...options: Options<V, DV>
 ) => {
-  const variantsOptions = options.pop() as VariantOptions<
-    Variants,
-    DefaultVariants
-  >;
+  const variantsOptions = options.pop() as VariantOptions<V, DV>;
   const defaultClasses = [...options] as ClassDefinition[];
 
-  type Selection = RequiredKeys<DefaultVariants> extends never
-    ? VariantsSelection<Variants>
-    : Omit<VariantsSelection<Variants>, keyof DefaultVariants> & {
-        [key in keyof DefaultVariants]?: key extends keyof Variants
-          ? keyof Variants[key]
-          : never;
-      };
-
   const StyledComponent = forwardRef<
-    ElementRef<ComponentType>,
-    ComponentProps<ComponentType> & Selection & { className?: string }
+    ElementRef<C>,
+    ComponentProps<C> & VariantsSelection<V, DV>
   >((allProps, ref) => {
     const { props, variants } = separateProps(
       allProps,
@@ -76,8 +64,6 @@ export const ts = <
     );
 
     const styles = tv(defaultClasses, props.className, variantsOptions);
-    console.log(variants);
-    console.log(styles(variants as any));
 
     return React.createElement(Component, {
       ...props,

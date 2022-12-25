@@ -2,75 +2,31 @@
  * Tailwind Variants
  */
 
-type GetRequired<T> = {
-  [P in keyof T as T[P] extends Required<T>[P] ? P : never]: T[P];
-};
-
-type RequiredKeys<T> = keyof GetRequired<T>;
-
-import type { ClassDefinition } from "./tf";
 import { flatClass } from "./tf";
 
-export type VariantsDefinition = Record<
-  string,
-  Record<string, ClassDefinition>
->;
-
-export type VariantsSelection<Variants extends VariantsDefinition> = {
-  [key in keyof Variants]: keyof Variants[key];
-};
-
-export type DefaultVariantsSelection<Variants extends VariantsDefinition> =
-  Partial<VariantsSelection<Variants>>;
-
-export type VariantOptions<
-  Variants extends VariantsDefinition,
-  DefaultVariants extends DefaultVariantsSelection<Variants>
-> = {
-  variants: Variants;
-  defaultVariants?: DefaultVariants;
-  compoundVariants?: Array<
-    { classes: ClassDefinition } & {
-      [Key in keyof Variants]?:
-        | keyof Variants[Key]
-        | Array<keyof Variants[Key]>;
-    }
-  >;
-};
-
-export type Options<
-  Variants extends VariantsDefinition,
-  DefaultVariants extends DefaultVariantsSelection<Variants>
-> = [
-  ...classes: ClassDefinition[],
-  variantsOptions: VariantOptions<Variants, DefaultVariants>
-];
+import type {
+  BaseDefaultVariantsSelection,
+  ClassDefinition,
+  Options,
+  VariantOptions,
+  VariantsDefinition,
+  VariantsSelection,
+} from "./types";
 
 export const tv = <
-  Variants extends VariantsDefinition,
-  DefaultVariants extends DefaultVariantsSelection<Variants>
+  V extends VariantsDefinition,
+  DV extends BaseDefaultVariantsSelection<V>
 >(
-  ...options: Options<Variants, DefaultVariants>
+  ...options: Options<V, DV>
 ) => {
   if (!options.length) {
     throw new Error("Invalid options");
   }
 
-  const variantsOptions = options.pop() as VariantOptions<
-    Variants,
-    DefaultVariants
-  >;
+  const variantsOptions = options.pop() as VariantOptions<V, DV>;
   const defaultClasses = [...options] as ClassDefinition[];
 
-  return (
-    selection: RequiredKeys<DefaultVariants> extends never
-      ? VariantsSelection<Variants>
-      : Omit<VariantsSelection<Variants>, keyof DefaultVariants> & {
-          [key in keyof DefaultVariants]?: key extends keyof Variants
-            ? keyof Variants[key]
-            : never;
-        }
-  ) => {
+  return (selection: VariantsSelection<V, DV>) => {
     const { variants, defaultVariants, compoundVariants } = variantsOptions;
 
     const variantKeys = Object.keys(variants);
@@ -94,12 +50,7 @@ export const tv = <
     const compoundVariantsClasses = compoundVariants?.map((compound) => {
       const { classes, ...variants } = compound;
       const variantEntries = Object.entries(variants) as Array<
-        [
-          key: keyof Variants,
-          value:
-            | keyof Variants[keyof Variants]
-            | Array<keyof Variants[keyof Variants]>
-        ]
+        [key: keyof V, value: keyof V[keyof V] | Array<keyof V[keyof V]>]
       >;
 
       const unmatched = variantEntries.reduce((unmatched, [key, value]) => {
@@ -109,8 +60,7 @@ export const tv = <
           if (!selection[key]) return true;
 
           return (
-            unmatched ||
-            !value.includes(selectedValue as keyof Variants[keyof Variants])
+            unmatched || !value.includes(selectedValue as keyof V[keyof V])
           );
         }
 
