@@ -66,5 +66,16 @@ export const ts = <
     });
   });
 
+  const displayName =
+    typeof Component === "string"
+      ? `T.${Component}`
+      : "displayName" in Component
+      ? (Component as any).displayName
+      : undefined;
+
+  if (displayName) {
+    StyledComponent.displayName = displayName;
+  }
+
   return StyledComponent;
 };

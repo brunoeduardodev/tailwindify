@@ -1,3 +1,4 @@
+import type { ComponentProps, FC } from "react";
 import React from "react";
 import { describe, expect, it } from "vitest";
 import { ts } from "../ts";
@@ -38,5 +39,17 @@ describe("TailwindifyStyled", () => {
     expect(element).toBeTruthy();
     expect(element?.tagName.toLowerCase()).toBe("p");
     expect(element?.className).toBe("mt-2 text-blue-500 font-md font-bold");
+  });
+
+  it("Should pass displayName", () => {
+    expect(ts("div", { variants: {} }).displayName).toBe("T.div");
+
+    const MyComponent: FC<ComponentProps<"input">> = (props) => {
+      return <input type={"text"} {...props} />;
+    };
+    MyComponent.displayName = "MyComponent";
+
+    const StyledText = ts(MyComponent, { variants: {} });
+    expect(StyledText.displayName).toBe("MyComponent");
   });
 });
