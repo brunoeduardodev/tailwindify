@@ -11,12 +11,6 @@ import type {
   VariantsSelection,
 } from "./types";
 
-type GetRequired<T> = {
-  [P in keyof T as T[P] extends Required<T>[P] ? P : never]: T[P];
-};
-
-type RequiredKeys<T> = keyof GetRequired<T>;
-
 type ValidComponent =
   | keyof JSX.IntrinsicElements
   | React.JSXElementConstructor<any>;
@@ -67,7 +61,7 @@ export const ts = <
 
     return React.createElement(Component, {
       ...props,
-      className: styles(variants as any),
+      className: styles(variants as VariantsSelection<V, DV>),
     });
   });
 
