@@ -6,9 +6,13 @@ import { ts } from "../ts";
 import { render } from "@testing-library/react";
 import { tf } from "../tf";
 
+let currentID = 0;
+
+const getID = () => `testing-id-${++currentID}`;
+
 describe("TailwindifyStyled", () => {
   it("Should be able to create a React component", () => {
-    const id = "some-id";
+    const id = getID();
 
     const MyText = ts("p", "mt-2", {
       variants: {
@@ -56,6 +60,7 @@ describe("TailwindifyStyled", () => {
   });
 
   it("Should work with custom components", () => {
+    const id = getID();
     const MyComponent: FC<ComponentProps<"div">> = (props) => {
       return <div {...props} />;
     };
@@ -79,7 +84,7 @@ describe("TailwindifyStyled", () => {
       },
     });
 
-    render(<StyledComponent id="some-id-1" size="lg" className="mb-2" />);
+    render(<StyledComponent id={id} size="lg" className="mb-2" />);
 
     const element = document.getElementById("some-id-1");
 
@@ -93,7 +98,7 @@ describe("TailwindifyStyled", () => {
   const styled = ts;
 
   it("Should require base props", () => {
-    const id = "test-999";
+    const id = getID();
 
     /** SomeFile.tsx */
     type MyProps = {
