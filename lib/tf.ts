@@ -18,5 +18,5 @@ export const flatClass = (classDefinition: ClassDefinition): string => {
 
 //** Tailwind Flat */
 export const tf = (...classes: ClassDefinition[]) => {
-  return classes.map(flatClass).join(" ");
+  return classes.map(flatClass).filter(Boolean).join(" ");
 };

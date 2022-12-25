@@ -1,5 +1,10 @@
-import React from "react";
-import type { ComponentProps, ElementRef, JSXElementConstructor } from "react";
+import React, { createElement } from "react";
+import type {
+  ElementRef,
+  JSXElementConstructor,
+  ComponentPropsWithoutRef,
+  ComponentProps,
+} from "react";
 import { forwardRef } from "react";
 import { tv } from "./tv";
 import type {
@@ -10,6 +15,7 @@ import type {
   VariantsDefinition,
   VariantsSelection,
 } from "./types";
+import { tf } from "./tf";
 
 type ValidComponent = keyof JSX.IntrinsicElements | JSXElementConstructor<any>;
 
@@ -49,7 +55,7 @@ export const ts = <
   const defaultClasses = [...options] as ClassDefinition[];
 
   const StyledComponent = forwardRef<
-    ElementRef<C>,
+    C,
     ComponentProps<C> & VariantsSelection<V, DV>
   >((allProps, ref) => {
     const { props, variants } = separateProps(
@@ -57,13 +63,19 @@ export const ts = <
       variantsOptions.variants
     );
 
-    const styles = tv(defaultClasses, props.className, variantsOptions);
+    const styles = tv(defaultClasses, variantsOptions);
 
-    return React.createElement(Component, {
-      ...props,
-      className: styles(variants as VariantsSelection<V, DV>),
-      ref,
-    });
+    return createElement<ComponentProps<C> & VariantsSelection<V, DV>>(
+      Component,
+      {
+        ...props,
+        className: tf(
+          styles(variants as VariantsSelection<V, DV>),
+          props.className
+        ),
+        ref,
+      }
+    );
   });
 
   const displayName =

@@ -52,4 +52,38 @@ describe("TailwindifyStyled", () => {
     const StyledText = ts(MyComponent, { variants: {} });
     expect(StyledText.displayName).toBe("MyComponent");
   });
+
+  it("Should work with custom components", () => {
+    const MyComponent: FC<ComponentProps<"div">> = (props) => {
+      return <div {...props} />;
+    };
+
+    MyComponent.displayName = "MyComponent";
+
+    const StyledComponent = ts(MyComponent, "font-bold", {
+      variants: {
+        size: {
+          sm: "font-sm p-1",
+          md: "font-md p-2",
+          lg: "font-lg p-3",
+        },
+        color: {
+          red: "text-red-500",
+          blue: "text-blue-500",
+        },
+      },
+      defaultVariants: {
+        color: "red",
+      },
+    });
+
+    render(<StyledComponent id="some-id-1" size="lg" className="mb-2" />);
+
+    const element = document.getElementById("some-id-1");
+
+    expect(StyledComponent.displayName).toBe("MyComponent");
+    expect(element).toBeTruthy();
+    expect(element?.className).toBe("font-bold font-lg p-3 text-red-500 mb-2");
+    expect(element?.tagName.toLowerCase()).toBe("div");
+  });
 });
