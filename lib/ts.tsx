@@ -45,10 +45,11 @@ const separateProps = <Variants extends VariantsDefinition>(
 
 /** TailwindStyle */
 export const ts = <
+  ComponentType extends ValidComponent,
   Variants extends VariantsDefinition,
   DefaultVariants extends DefaultVariantsSelection<Variants>
 >(
-  Component: ValidComponent,
+  Component: ComponentType,
   ...options: Options<Variants, DefaultVariants>
 ) => {
   const variantsOptions = options.pop() as VariantOptions<
@@ -66,8 +67,8 @@ export const ts = <
       };
 
   const StyledComponent = forwardRef<
-    ElementRef<typeof Component>,
-    ComponentProps<typeof Component> & Selection & { className: string }
+    ElementRef<ComponentType>,
+    ComponentProps<ComponentType> & Selection & { className?: string }
   >((allProps, ref) => {
     const { props, variants } = separateProps(
       allProps,
@@ -75,10 +76,13 @@ export const ts = <
     );
 
     const styles = tv(defaultClasses, props.className, variantsOptions);
+    console.log(variants);
+    console.log(styles(variants as any));
 
-    return (
-      <Component className={styles(variants as any)} {...props} ref={ref} />
-    );
+    return React.createElement(Component, {
+      ...props,
+      className: styles(variants as any),
+    });
   });
 
   return StyledComponent;
