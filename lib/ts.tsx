@@ -5,7 +5,10 @@ import { tv } from "./tv";
 import type {
   BaseDefaultVariantsSelection,
   ClassDefinition,
+  GetOverlappingKeys,
+  KeyToAny,
   Options,
+  RequiredKeys,
   VariantOptions,
   VariantsDefinition,
   VariantsSelection,
@@ -18,9 +21,12 @@ const separateProps = <P extends object, V extends VariantsDefinition>(
   allProps: P,
   variants: V
 ) => {
-  allProps;
+  const propsPool: Partial<P> = {};
 
-  const props: Partial<P> = {};
+  if ("__base" in allProps) {
+    Object.assign(propsPool, (allProps as any).__base);
+  }
+
   const variantsProps: {
     [key in keyof V]?: keyof V[key];
   } = {};
@@ -31,10 +37,10 @@ const separateProps = <P extends object, V extends VariantsDefinition>(
       return;
     }
 
-    props[key as keyof P] = value;
+    propsPool[key as keyof P] = value;
   });
 
-  return { props: props as P, variants: variantsProps };
+  return { props: propsPool as P, variants: variantsProps };
 };
 
 /** TailwindStyle */
@@ -49,10 +55,26 @@ export const ts = <
   const variantsOptions = options.pop() as VariantOptions<V, DV>;
   const defaultClasses = [...options] as ClassDefinition[];
 
-  const StyledComponent = forwardRef<
-    C,
-    ComponentProps<C> & VariantsSelection<V, DV>
-  >((allProps, ref) => {
+  type OverlappingKeys = GetOverlappingKeys<
+    ComponentProps<C>,
+    KeyToAny<keyof VariantsSelection<V, DV>>
+  >;
+
+  type OverlappingProperties = Pick<ComponentProps<C>, OverlappingKeys>;
+
+  type BaseProperty = RequiredKeys<OverlappingProperties> extends never
+    ? {
+        __base?: OverlappingProperties;
+      }
+    : { __base: OverlappingProperties };
+
+  type Props = OverlappingKeys extends never
+    ? ComponentProps<C> & VariantsSelection<V, DV>
+    : Omit<ComponentProps<C>, OverlappingKeys> &
+        VariantsSelection<V, DV> &
+        BaseProperty;
+
+  const StyledComponent = forwardRef<C, Props>((allProps, ref) => {
     const { props, variants } = separateProps(
       allProps,
       variantsOptions.variants
@@ -60,17 +82,14 @@ export const ts = <
 
     const styles = tv(defaultClasses, variantsOptions);
 
-    return createElement<ComponentProps<C> & VariantsSelection<V, DV>>(
-      Component,
-      {
-        ...props,
-        className: tf(
-          styles(variants as VariantsSelection<V, DV>),
-          props.className
-        ),
-        ref,
-      }
-    );
+    return createElement<Props>(Component, {
+      ...(props as ComponentProps<C>),
+      className: tf(
+        styles(variants as VariantsSelection<V, DV>),
+        props.className
+      ),
+      ref,
+    });
   });
 
   const displayName =

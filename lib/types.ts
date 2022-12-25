@@ -1,8 +1,21 @@
-type GetRequired<T> = {
+export type GetRequired<T> = {
   [P in keyof T as T[P] extends Required<T>[P] ? P : never]: T[P];
 };
 
-type RequiredKeys<T> = keyof GetRequired<T>;
+export type GetOptional<T> = {
+  [P in keyof T as T[P] extends Required<T>[P] ? never : P]: T[P];
+};
+
+export type RequiredKeys<T> = keyof GetRequired<T>;
+export type OptionalKeys<T> = keyof GetOptional<T>;
+
+export type KeyToAny<Key extends string | number | symbol> = {
+  [key in Key]: any;
+};
+
+export type GetOverlappingKeys<A, B> = keyof {
+  [P in keyof A as Required<B> extends KeyToAny<P> ? P : never]: any;
+};
 
 type Falsy = "" | 0 | false | null | undefined;
 

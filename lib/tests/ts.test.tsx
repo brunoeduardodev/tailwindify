@@ -1,8 +1,10 @@
-import type { ComponentProps, FC } from "react";
+import type { FC } from "react";
+import type { ComponentProps } from "react";
 import React from "react";
 import { describe, expect, it } from "vitest";
 import { ts } from "../ts";
 import { render } from "@testing-library/react";
+import { tf } from "../tf";
 
 describe("TailwindifyStyled", () => {
   it("Should be able to create a React component", () => {
@@ -85,5 +87,57 @@ describe("TailwindifyStyled", () => {
     expect(element).toBeTruthy();
     expect(element?.className).toBe("font-bold font-lg p-3 text-red-500 mb-2");
     expect(element?.tagName.toLowerCase()).toBe("div");
+  });
+
+  it("Should require base props", () => {
+    const id = "test-999";
+
+    const MyComponent: FC<{
+      id: string;
+      className?: string;
+      color: "transparent" | "solid";
+      size?: "BIG" | "NORMAL";
+    }> = ({ className, color, size = "NORMAL", id }) => {
+      return (
+        <div
+          id={id}
+          className={tf(className, color === "transparent" && "opacity-50", {
+            "font-bold": size === "BIG",
+            "font-semibold": size === "NORMAL",
+          })}
+        >
+          {color}
+        </div>
+      );
+    };
+
+    const MyStyledComponent = ts(MyComponent, "mb-2", {
+      variants: {
+        size: {
+          sm: "font-sm p-1",
+          md: "font-md p-2",
+          lg: "font-lg p-3",
+        },
+        color: {
+          red: "text-red-500",
+          blue: "text-blue-500",
+        },
+      },
+      defaultVariants: {
+        size: "md",
+      },
+    });
+
+    render(
+      <MyStyledComponent
+        id="test-999"
+        color="blue"
+        __base={{ color: "transparent" }}
+      />
+    );
+
+    expect(document.getElementById(id)?.className).toBe(
+      "mb-2 font-md p-2 text-blue-500 opacity-50 font-semibold"
+    );
   });
 });
