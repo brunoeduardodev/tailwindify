@@ -62,6 +62,7 @@ export const ts = <
     return React.createElement(Component, {
       ...props,
       className: styles(variants as VariantsSelection<V, DV>),
+      ref,
     });
   });
 
