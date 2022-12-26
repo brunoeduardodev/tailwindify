@@ -86,7 +86,7 @@ describe("TailwindifyStyled", () => {
 
     render(<StyledComponent id={id} size="lg" className="mb-2" />);
 
-    const element = document.getElementById("some-id-1");
+    const element = document.getElementById(id);
 
     expect(StyledComponent.displayName).toBe("MyComponent");
     expect(element).toBeTruthy();
@@ -156,6 +156,60 @@ describe("TailwindifyStyled", () => {
 
     expect(document.getElementById(id)?.className).toBe(
       "mb-2 font-md p-2 text-blue-500 opacity-50 font-semibold"
+    );
+  });
+
+  it("base props should be able to work nested", () => {
+    const id = getID();
+
+    const StyledInput = ts("input", {
+      variants: {
+        size: {
+          sm: "font-sm",
+          md: "font-md",
+        },
+        color: {
+          red: "text-red-500",
+          blue: "text-blue-500",
+        },
+      },
+    });
+
+    const MyInput = styled(StyledInput, {
+      variants: {
+        size: {
+          sm: "placeholder:font-xs",
+          md: "placeholder:font-sm",
+        },
+        color: {
+          red: "placeholder:text-red-500",
+          blue: "placeholder:text-blue-500",
+        },
+      },
+    });
+
+    const MyStyledInput = styled(MyInput, {
+      variants: {
+        color: {
+          red: "hover:text-red-600",
+          blue: "hover:text-blue-600",
+        },
+      },
+    });
+
+    render(
+      <MyStyledInput
+        id={id}
+        size="md"
+        color="blue"
+        __base={{ color: "red", __base: { size: "md", color: "blue" } }}
+      />
+    );
+
+    const element = document.getElementById(id);
+
+    expect(element?.className).toBe(
+      "font-md text-blue-500 placeholder:font-sm placeholder:text-red-500 hover:text-blue-600"
     );
   });
 });

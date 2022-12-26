@@ -32,6 +32,8 @@ const separateProps = <P extends object, V extends VariantsDefinition>(
   } = {};
 
   Object.entries(allProps).forEach(([key, value]) => {
+    if (key === "__base") return;
+
     if (key in variants) {
       variantsProps[key as keyof V] = value;
       return;
@@ -55,13 +57,19 @@ export const ts = <
   const variantsOptions = options.pop() as VariantOptions<V, DV>;
   const defaultClasses = [...options] as ClassDefinition[];
 
-  type OverlappingKeys = GetOverlappingKeys<
+  type BaseOverlappingKeys = GetOverlappingKeys<
     ComponentProps<C>,
     KeyToAny<keyof VariantsSelection<V, DV>>
   >;
 
-  type OverlappingProperties = Pick<ComponentProps<C>, OverlappingKeys>;
+  type OverlappingKeys = BaseOverlappingKeys extends never
+    ? never
+    : GetOverlappingKeys<
+        ComponentProps<C>,
+        KeyToAny<keyof VariantsSelection<V, DV> | "__base">
+      >;
 
+  type OverlappingProperties = Pick<ComponentProps<C>, OverlappingKeys>;
   type BaseProperty = RequiredKeys<OverlappingProperties> extends never
     ? {
         __base?: OverlappingProperties;
