@@ -165,8 +165,8 @@ describe("TailwindifyStyled", () => {
     const StyledInput = ts("input", {
       variants: {
         size: {
-          sm: "font-sm",
-          md: "font-md",
+          sm: "text-sm",
+          md: "text-md",
         },
         color: {
           red: "text-red-500",
@@ -178,8 +178,8 @@ describe("TailwindifyStyled", () => {
     const MyInput = styled(StyledInput, {
       variants: {
         size: {
-          sm: "placeholder:font-xs",
-          md: "placeholder:font-sm",
+          sm: "placeholder:text-xs",
+          md: "placeholder:text-sm",
         },
         color: {
           red: "placeholder:text-red-500",
@@ -202,13 +202,17 @@ describe("TailwindifyStyled", () => {
         id={id}
         size="md"
         color="blue"
-        __base={{ color: "red", __base: { size: "md", color: "blue" } }}
+        __base={{
+          color: "red",
+          __base: { size: "md", color: "blue", __base: { size: 123 } },
+        }}
       />
     );
 
-    const element = document.getElementById(id);
+    const element = document.getElementById(id) as HTMLInputElement;
 
-    expect(element?.className).toBe(
+    expect(element.size).toBe(123);
+    expect(element.className).toBe(
       "font-md text-blue-500 placeholder:font-sm placeholder:text-red-500 hover:text-blue-600"
     );
   });
