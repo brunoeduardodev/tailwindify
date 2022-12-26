@@ -50,4 +50,16 @@ describe("TailwindyFlat Tests", () => {
 
     expect(final).toBe("1 2 3 4 5 7");
   });
+
+  it("Should work with context nested", () => {
+    const final = tf("1", "2", {
+      base: "3",
+      hover: "4 5",
+      placeholder: ["6 mt-2", "mb-3", { base: "", hover: "mr-4" }],
+    });
+
+    expect(final).toBe(
+      "1 2 3 hover:4 hover:5 placeholder:6 placeholder:mt-2 placeholder:mb-3 placeholder:hover:mr-4"
+    );
+  });
 });
