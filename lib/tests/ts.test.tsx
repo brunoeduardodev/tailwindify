@@ -216,4 +216,43 @@ describe("TailwindifyStyled", () => {
       "text-md text-blue-500 placeholder:text-sm placeholder:text-red-500 hover:text-blue-600"
     );
   });
+
+  it("Should pass class context definitions", () => {
+    const id = getID();
+
+    const MyButton = styled(
+      "button",
+      { base: "text-white", disabled: { hover: "cursor-not-allowed" } },
+      {
+        variants: {
+          size: {
+            sm: "px-3 py-2 text-sm",
+            md: "px-4 py-2 text-md",
+          },
+          color: {
+            red: {
+              base: "bg-red-500",
+              hover: "bg-red-600",
+              active: "bg-red-700",
+              disabled: "bg-red-400 text-black",
+            },
+            blue: {
+              base: "bg-blue-500",
+              hover: "bg-blue-600",
+              active: "bg-blue-700",
+              disabled: "bg-blue-400 text-black",
+            },
+          },
+        },
+        defaultVariants: { size: "md" },
+      }
+    );
+
+    render(<MyButton id={id} color="blue" />);
+
+    const element = document.getElementById(id);
+    expect(element?.className).toBe(
+      "text-white disabled:hover:cursor-not-allowed px-4 py-2 text-md bg-blue-500 hover:bg-blue-600 active:bg-blue-700 disabled:bg-blue-400 disabled:text-black"
+    );
+  });
 });

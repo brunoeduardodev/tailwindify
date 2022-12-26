@@ -27,7 +27,7 @@ export type ClassDefinition =
   | 0
   | false
   | ClassDefinition[]
-  | ({ base: ClassDefinition } & { [key: string]: ClassDefinition });
+  | { [key: string]: ClassDefinition };
 
 export type VariantsDefinition = Record<
   string,
