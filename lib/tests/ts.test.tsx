@@ -213,7 +213,7 @@ describe("TailwindifyStyled", () => {
 
     expect(element.size).toBe(123);
     expect(element.className).toBe(
-      "font-md text-blue-500 placeholder:font-sm placeholder:text-red-500 hover:text-blue-600"
+      "text-md text-blue-500 placeholder:text-sm placeholder:text-red-500 hover:text-blue-600"
     );
   });
 });
